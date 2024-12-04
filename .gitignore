@@ -28,8 +28,6 @@ bin/
 ### Mac OS ###
 .DS_Store
 
-libs
-
 BomberRE.iml
 
 .idea
