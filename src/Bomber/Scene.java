@@ -17,11 +17,9 @@ public class Scene {
     ArrayList<Obstacle> obstacles;
     ArrayList<Rectangle> bombBoxes;
     ArrayList<Rectangle> bombHitBoxes;
-
-    private long window;
+    private static int timer;
 
     private Scene() {
-        this.window = Window.getWindow();
         bombHitBoxes = new ArrayList<>();
         bombBoxes = new ArrayList<>();
         casillas = new ArrayList<>();
@@ -37,7 +35,28 @@ public class Scene {
         return instance;
     }
 
+    public static void destroy() {
+        if (instance != null) {
+            instance.clearResources();
+            instance = null;
+        }
+    }
+
+    private void clearResources() {
+        if (casillas != null) casillas.clear();
+        if (borde != null) borde.clear();
+        if (obstacles != null) obstacles.clear();
+        if (bombBoxes != null) bombBoxes.clear();
+        if (bombHitBoxes != null) bombHitBoxes.clear();
+        timer = 0;
+    }
+
     public void draw(){
+        if(timer > 100)
+            timer = 0;
+
+        timer++;
+
         for(Obstacle obs : obstacles){
             obs.draw();
         }
@@ -50,14 +69,17 @@ public class Scene {
             cas.draw(0.3f,0.3f,0.3f);
         }
 
-        for(Rectangle bomb : bombBoxes)
-        {
-            bomb.draw(0,0,1);
+
+        Iterator<Rectangle> bombIterator = bombBoxes.iterator();
+        while (bombIterator.hasNext()) {
+            Rectangle bomb = bombIterator.next();
+            bomb.draw(0, 0, 1);
         }
 
-        for (Rectangle expode : bombHitBoxes)
-        {
-            expode.draw(1,0.2f,0.2f);
+        Iterator<Rectangle> expodeIterator = bombHitBoxes.iterator();
+        while (expodeIterator.hasNext()) {
+            Rectangle expode = expodeIterator.next();
+            expode.draw(1, 0.2f, 0.2f);
         }
     }
 
@@ -110,21 +132,14 @@ public class Scene {
         return  bombHitBoxes;
     }
 
-    public void addBomb(Vector2 pos)
+    public void addBomb(Rectangle bomb)
     {
-        int BOX = WINDOW_CONST.BOX;
-        bombBoxes.add(new Rectangle(pos.x,pos.y,BOX,BOX));
+        bombBoxes.add(bomb);
     }
 
-    public void removeBomb(Vector2 pos)
+    public synchronized void removeBomb(Rectangle bomb)
     {
-        Iterator<Rectangle> iterator = bombBoxes.iterator();
-        while (iterator.hasNext()) {
-            Rectangle bomb = iterator.next();
-            if (pos.x == bomb.x && pos.y == bomb.y) {
-                iterator.remove();
-            }
-        }
+        bombBoxes.remove(bomb);
     }
 
     public void addExplode(Rectangle explode)
@@ -132,7 +147,7 @@ public class Scene {
         this.bombHitBoxes.add(explode);
     }
 
-    public void removeExplode(Rectangle explode)
+    public synchronized void removeExplode(Rectangle explode)
     {
         this.bombHitBoxes.remove(explode);
     }

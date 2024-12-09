@@ -17,7 +17,6 @@ public class Bomb implements Runnable {
 
     private ArrayList<Rectangle> hitboxes;
     private Vector2 center;
-    private int timer;
     private Rectangle pos;
 
     public Bomb(Vector2 pos) {
@@ -30,7 +29,6 @@ public class Bomb implements Runnable {
         for (Rectangle r : casillas) {
             if (cs.checkCollisionPointRec(pos, r)) {
                 this.pos = r.copy();
-                scene.addBomb(new Vector2(this.pos.x,this.pos.y));
                 break;
             }
         }
@@ -127,14 +125,16 @@ public class Bomb implements Runnable {
     @Override
     public void run() {
 
+        Scene scene = Scene.getInstance();
+        scene.addBomb(this.pos);
+
         try {
             Thread.sleep(BOMB_CONST.TTL_MS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        Scene scene = Scene.getInstance();
-        scene.removeBomb(new Vector2(pos.x,pos.y));
+        scene.removeBomb(this.pos);
 
         calculateExpodeHitBox();
         for(Rectangle rec : hitboxes)

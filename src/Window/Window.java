@@ -11,7 +11,9 @@ import org.lwjgl.*;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
+import org.lwjgl.util.freetype.*;
 
+import java.awt.*;
 import java.io.IOException;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -30,6 +32,7 @@ public class Window {
     public void runGame() {
         System.out.println("Hello LWJGL " + Version.getVersion() + "!");
 
+
         loop();
 
         glfwFreeCallbacks(window);
@@ -39,33 +42,47 @@ public class Window {
         glfwSetErrorCallback(null).free();
     }
 
+
+
     protected void loop() {
 
-        ArrayList<Player> players = new ArrayList<>();
-        ArrayList<Thread> bombThreads = new ArrayList<>();
-        players.add(new Player(0,PLAYER_CONST.SPAWN_TL,this.window, new Input(0,window,true)));
-        players.add(new Player(1,PLAYER_CONST.SPAWN_TR,this.window, new Input(0,window,false)));
-        Scene scene = Scene.getInstance();
-
         while (!glfwWindowShouldClose(window)) {
-            glfwPollEvents();
 
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            scene.draw();
+            Scene.destroy();
+            ArrayList<Player> players = new ArrayList<>();
+            players.add(new Player(PLAYER_CONST.SPAWN_TL, new Input(0,window,true)));
+            players.add(new Player(PLAYER_CONST.SPAWN_TR, new Input(0,window,false)));
+            Scene scene = Scene.getInstance();
 
+            while (!players.get(0).lose() && !players.get(1).lose())
+            {
 
+                System.out.println(players.get(0).getDeaths() + ", " + players.get(1).getDeaths());
+                glfwPollEvents();
 
-            for (Player p : players) {
-                p.update();
-                p.draw();
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                scene.draw();
 
-                if(p.setBomb()){
-                    Bomb newBomb = new Bomb(p.getPos());
-                    Thread bombThread = new Thread(newBomb);
-                    bombThread.start();
+                for (Player p : players) {
+                    p.update();
+                    p.draw();
+
+                    if(p.setBomb()){
+                        Bomb newBomb = new Bomb(p.getPos());
+                        Thread bombThread = new Thread(newBomb);
+                        bombThread.start();
+                    }
                 }
+                glfwSwapBuffers(window);
             }
-            glfwSwapBuffers(window);
+
+
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
         }
     }
 
@@ -123,11 +140,6 @@ public class Window {
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
-    }
-
-    public static long getWindow()
-    {
-        return window;
     }
 
     public static void main(String[] args) throws IOException {

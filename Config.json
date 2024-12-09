@@ -1,0 +1,63 @@
+{
+    "WINDOW_CONST": {
+      "TITLE": "BOMBER RE",
+      "WIDTH": 1020,
+      "HEIGHT": 780,
+      "BOX": 60,
+      "RIGHT": 900,  
+      "BOTTOM": 660, 
+      "LEFT": 60,
+      "TOP": 60,
+      "OUT_SCREEN": {
+        "x": 1020,
+        "y": 780
+      }
+    },
+    "PLAYER_CONST": {
+      "HEIGHT": 56, 
+      "WIDTH": 56, 
+      "SPEED": 3,
+      "INVULNERABILITY": 200,
+      "MAX_VIDA": 1,
+      "DEATH_NUM": 10,
+      "SPAWN_TL": {
+        "x": 60,
+        "y": 60
+      },
+      "SPAWN_TR": {
+        "x": 960,
+        "y": 720 
+      },
+      "SPAWN_BL": {
+        "x": 60,
+        "y": 720 
+      },
+      "SPAWN_BR": {
+        "x": 960,
+        "y": 720 
+      },
+      "optional_values": {
+        "INVULNERABILITY": [200, 300, 400, 500],
+        "MAX_VIDA": [1, 2, 3, 5],
+        "DEATH_NUM": [10, 5, 15, 20]
+      }
+    },
+    "BOMB_CONST": {
+      "TTL_MS": 2500,
+      "EXPLODE_TTL_MS": 500,
+      "EXPLODE_LONG": 2, 
+      "EXPLODE_TLL": 30,
+      "COLD_DOWN": 120,   
+      "DAMAGE": 1,
+      "HITBOX_RAD": 20,
+      "optional_values": {
+        "TTL_MS": [1000, 1500, 2000, 2500, 3000],
+        "EXPLODE_TTL_MS": [400, 500, 600, 700],
+        "EXPLODE_LONG": [1, 2, 3], 
+        "EXPLODE_TLL": [20, 30, 40, 50],
+        "COLD_DOWN": [90, 120, 150, 180],
+        "DAMAGE": [1, 2, 3, 5]
+      }
+    }
+  }
+  

@@ -10,9 +10,7 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 public class Player {
-    private long window;
 
-    private final int id;
     private final Rectangle pos;
     private final Vector2 vel;
     private final float speed;
@@ -22,14 +20,13 @@ public class Player {
     private int dmg_timer;
     private final Vector2 spawn;
     private boolean colision_with_solid_rec;
+    private int deaths;
 
 
-    public Player(int id, Vector2 spawn, long window,Input input) {
-        this.window = window;
-
+    public Player(Vector2 spawn,Input input) {
+        this.deaths = 0;
         this.keys = input;
 
-        this.id = id;
         this.pos = new Rectangle(
                 spawn.x,
                 spawn.y,
@@ -45,10 +42,6 @@ public class Player {
 
         this.spawn = spawn;
         this.colision_with_solid_rec = false;
-    }
-
-    public int getId(){
-        return id;
     }
 
     public Rectangle getRec(){
@@ -360,6 +353,7 @@ public class Player {
         vida = PLAYER_CONST.MAX_VIDA;
         pos.x = spawn.x;
         pos.y = spawn.y;
+        deaths++;
     }
 
     private void collisionBomb() {
@@ -390,5 +384,14 @@ public class Player {
         }
     }
 
+    public int getDeaths()
+    {
+        return this.deaths;
+    }
+
+    public boolean lose()
+    {
+        return  this.deaths > PLAYER_CONST.DEATH_NUM;
+    }
 
 }
