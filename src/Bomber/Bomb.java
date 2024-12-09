@@ -5,75 +5,41 @@ import CONST.WINDOW_CONST;
 import Game.CollisionShapes;
 import Game.Rectangle;
 import Game.Vector2;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GL;
 import org.w3c.dom.css.Rect;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Vector;
 
-public class Bomb {
+public class Bomb implements Runnable {
 
-    private ArrayList<Rectangle> hitbox;
+    private ArrayList<Rectangle> hitboxes;
     private Vector2 center;
     private int timer;
     private Rectangle pos;
 
     public Bomb(Vector2 pos) {
-        timer = 0;
+        hitboxes = new ArrayList<Rectangle>();
+
         CollisionShapes cs = new CollisionShapes();
-        Scene map = Scene.getInstance();
-        ArrayList<Rectangle> casillas = map.getCasillas();
+        Scene scene = Scene.getInstance();
+        ArrayList<Rectangle> casillas = scene.getCasillas();
 
         for (Rectangle r : casillas) {
             if (cs.checkCollisionPointRec(pos, r)) {
                 this.pos = r.copy();
+                scene.addBomb(new Vector2(this.pos.x,this.pos.y));
                 break;
             }
         }
 
         assert this.pos != null;
         this.center = new Vector2(this.pos.x + this.pos.width/2, this.pos.y+this.pos.height/2);
-        this.hitbox = new ArrayList<Rectangle>();
     }
 
-    public void draw() {
-        this.pos.draw(0,0,1);
-        for (Rectangle r : hitbox) {
-            r.draw(1,0.2f,0.2f);
-        }
-    }
-
-    public void update(ArrayList<Player> players) {
-        timer++;
-        explode(players);
-    }
-
-
-    public boolean endExplode(){
-        return (timer > BOMB_CONST.TTL + BOMB_CONST.EXPLODE_TLL);
-    }
-
-    private void explode(ArrayList<Player> players) {
-        if(timer >= BOMB_CONST.TTL){
-            if (hitbox.isEmpty()) {
-                pos.x = WINDOW_CONST.OUT_SCREEN.x;
-                pos.y = WINDOW_CONST.OUT_SCREEN.y;
-                hitbox = getExpodeHitBox();
-            }
-
-            CollisionShapes cs = new CollisionShapes();
-
-            for(Player p : players){
-                Rectangle rec = p.getRec();
-                for (Rectangle h : hitbox) {
-                    if (cs.checkCollisionRecs(rec,h))
-                       p.damage();
-                }
-            }
-        }
-    }
-
-    private ArrayList<Rectangle> getExpodeHitBox() {
+    private void calculateExpodeHitBox() {
         int CASILLA = WINDOW_CONST.BOX;
 
         Vector2 left = findExplodeLimit(-CASILLA,0);
@@ -82,21 +48,18 @@ public class Bomb {
         Vector2 bottom = findExplodeLimit(0,CASILLA);
 
         float rad = BOMB_CONST.HITBOX_RAD;
-        ArrayList<Rectangle> hitBoxes = new ArrayList<>();
 
-        hitBoxes.add(new Rectangle(
+        hitboxes.add(new Rectangle(
                 left.x-rad,
                 left.y-rad,
                 right.x-left.x+2*rad,
                 2*rad));
 
-        hitBoxes.add(new Rectangle(
+        hitboxes.add(new Rectangle(
                 top.x-rad,
                 top.y-rad,
                 2*rad,
                 bottom.y-top.y+2*rad));
-
-        return hitBoxes;
 
     }
 
@@ -161,4 +124,33 @@ public class Bomb {
         return pos;
     }
 
+    @Override
+    public void run() {
+
+        try {
+            Thread.sleep(BOMB_CONST.TTL_MS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        Scene scene = Scene.getInstance();
+        scene.removeBomb(new Vector2(pos.x,pos.y));
+
+        calculateExpodeHitBox();
+        for(Rectangle rec : hitboxes)
+        {
+            scene.addExplode(rec);
+        }
+
+        try {
+            Thread.sleep(BOMB_CONST.EXPLODE_TTL_MS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        for(Rectangle rec : hitboxes)
+        {
+            scene.removeExplode(rec);
+        }
+    }
 }

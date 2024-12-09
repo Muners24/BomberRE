@@ -2,8 +2,12 @@ package Bomber;
 
 import CONST.WINDOW_CONST;
 import Game.Rectangle;
+import Game.Vector2;
+import Window.Window;
+import org.w3c.dom.css.Rect;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Scene {
 
@@ -11,8 +15,15 @@ public class Scene {
     ArrayList<Rectangle> casillas;
     ArrayList<Obstacle> borde;
     ArrayList<Obstacle> obstacles;
+    ArrayList<Rectangle> bombBoxes;
+    ArrayList<Rectangle> bombHitBoxes;
 
-    private Scene(){
+    private long window;
+
+    private Scene() {
+        this.window = Window.getWindow();
+        bombHitBoxes = new ArrayList<>();
+        bombBoxes = new ArrayList<>();
         casillas = new ArrayList<>();
         borde = new ArrayList<>();
         obstacles = new ArrayList<>();
@@ -37,6 +48,16 @@ public class Scene {
 
         for(Rectangle cas : casillas){
             cas.draw(0.3f,0.3f,0.3f);
+        }
+
+        for(Rectangle bomb : bombBoxes)
+        {
+            bomb.draw(0,0,1);
+        }
+
+        for (Rectangle expode : bombHitBoxes)
+        {
+            expode.draw(1,0.2f,0.2f);
         }
     }
 
@@ -78,6 +99,47 @@ public class Scene {
 
     public ArrayList<Rectangle> getCasillas() {
         return casillas;
+    }
+
+    public ArrayList<Rectangle> getBombBoxes() {
+        return bombBoxes;
+    }
+
+    public ArrayList<Rectangle> getBombHitBoxes()
+    {
+        return  bombHitBoxes;
+    }
+
+    public void addBomb(Vector2 pos)
+    {
+        int BOX = WINDOW_CONST.BOX;
+        bombBoxes.add(new Rectangle(pos.x,pos.y,BOX,BOX));
+    }
+
+    public void removeBomb(Vector2 pos)
+    {
+        Iterator<Rectangle> iterator = bombBoxes.iterator();
+        while (iterator.hasNext()) {
+            Rectangle bomb = iterator.next();
+            if (pos.x == bomb.x && pos.y == bomb.y) {
+                iterator.remove();
+            }
+        }
+    }
+
+    public void addExplode(Rectangle explode)
+    {
+        this.bombHitBoxes.add(explode);
+    }
+
+    public void removeExplode(Rectangle explode)
+    {
+        this.bombHitBoxes.remove(explode);
+    }
+
+    public ArrayList<Rectangle> getExplodeHitBox()
+    {
+        return this.bombHitBoxes;
     }
 
 }

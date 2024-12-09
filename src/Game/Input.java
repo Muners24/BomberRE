@@ -14,8 +14,10 @@ public class Input implements Serializable {
     public boolean left;
     public boolean right;
     public boolean key;
+    public boolean tipoInput;
 
-    public Input(int id,long window) {
+    public Input(int id,long window,boolean wasd) {
+        tipoInput = wasd;
         this.id = id;
         this.window = window;
         this.up = false;
@@ -30,95 +32,22 @@ public class Input implements Serializable {
     }
 
     public void input(){
-        up = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_UP) == GLFW.GLFW_PRESS;
-        down = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_DOWN) == GLFW.GLFW_PRESS;
-        left = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_LEFT) == GLFW.GLFW_PRESS;
-        right = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_RIGHT) == GLFW.GLFW_PRESS;
-        key = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_X) == GLFW.GLFW_PRESS;
-
-
-    }
-
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(id);
-        builder.append("/");
-        builder.append(up);
-        builder.append("/");
-        builder.append(down);
-        builder.append("/");
-        builder.append(left);
-        builder.append("/");
-        builder.append(right);
-        builder.append("/");
-        builder.append(key);
-        builder.append("/");
-        return builder.toString();
-    }
-
-    public static Input fromString(String str) {
-        String[] parts = str.split("/");
-
-        if (parts.length != 6) {
-            throw new IllegalArgumentException("La cadena no tiene el formato esperado.");
+        if (tipoInput)
+        {
+            up = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_W) == GLFW.GLFW_PRESS;
+            down = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_S) == GLFW.GLFW_PRESS;
+            left = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_A) == GLFW.GLFW_PRESS;
+            right = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_D) == GLFW.GLFW_PRESS;
+            key = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_X) == GLFW.GLFW_PRESS;
         }
-
-        int id = Integer.parseInt(parts[0]);
-        boolean up = Boolean.parseBoolean(parts[1]);
-        boolean down = Boolean.parseBoolean(parts[2]);
-        boolean left = Boolean.parseBoolean(parts[3]);
-        boolean right = Boolean.parseBoolean(parts[4]);
-        boolean key = Boolean.parseBoolean(parts[5]);
-
-        Input input = new Input(id, 0);
-        input.up = up;
-        input.down = down;
-        input.left = left;
-        input.right = right;
-        input.key = key;
-
-        return input;
+        else
+        {
+            up = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_UP) == GLFW.GLFW_PRESS;
+            down = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_DOWN) == GLFW.GLFW_PRESS;
+            left = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_LEFT) == GLFW.GLFW_PRESS;
+            right = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_RIGHT) == GLFW.GLFW_PRESS;
+            key = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_KP_0) == GLFW.GLFW_PRESS;
+        }
     }
 
-    public void setUp(boolean up) {
-        this.up = up;
-    }
-
-    public void setDown(boolean down) {
-        this.down = down;
-    }
-
-    public void setLeft(boolean left) {
-        this.left = left;
-    }
-
-    public void setRight(boolean right) {
-        this.right = right;
-    }
-
-    public void setKey(boolean key) {
-        this.key = key;
-    }
-
-    public boolean isUp() {
-        return up;
-    }
-
-    public boolean isDown() {
-        return down;
-    }
-
-    public boolean isLeft() {
-        return left;
-    }
-
-    public boolean isRight() {
-        return right;
-    }
-
-    public boolean isKey() {
-        return key;
-    }
 }

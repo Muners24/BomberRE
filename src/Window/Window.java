@@ -25,7 +25,7 @@ import static org.lwjgl.system.MemoryUtil.*;
 
 public class Window {
 
-    protected long window;
+    private static long window;
 
     public void runGame() {
         System.out.println("Hello LWJGL " + Version.getVersion() + "!");
@@ -42,32 +42,27 @@ public class Window {
     protected void loop() {
 
         ArrayList<Player> players = new ArrayList<>();
-        ArrayList<Bomb> bombs = new ArrayList<Bomb>();
-        players.add(new Player(0,PLAYER_CONST.SPAWN_TL,this.window, new Input(0,window)));
-        Scene map = Scene.getInstance();
+        ArrayList<Thread> bombThreads = new ArrayList<>();
+        players.add(new Player(0,PLAYER_CONST.SPAWN_TL,this.window, new Input(0,window,true)));
+        players.add(new Player(1,PLAYER_CONST.SPAWN_TR,this.window, new Input(0,window,false)));
+        Scene scene = Scene.getInstance();
 
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            map.draw();
+            scene.draw();
 
-            Iterator<Bomb> iterator = bombs.iterator();
-            while (iterator.hasNext()) {
-                Bomb b = iterator.next();
-                b.update(players);
-                b.draw();
-                if (b.endExplode()) {
-                    iterator.remove();
-                }
-            }
+
 
             for (Player p : players) {
-                p.update(bombs);
+                p.update();
                 p.draw();
 
                 if(p.setBomb()){
-                    bombs.add(new Bomb(p.getPos()));
+                    Bomb newBomb = new Bomb(p.getPos());
+                    Thread bombThread = new Thread(newBomb);
+                    bombThread.start();
                 }
             }
             glfwSwapBuffers(window);
@@ -128,6 +123,11 @@ public class Window {
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
+    }
+
+    public static long getWindow()
+    {
+        return window;
     }
 
     public static void main(String[] args) throws IOException {

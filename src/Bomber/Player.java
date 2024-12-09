@@ -5,6 +5,7 @@ import CONST.PLAYER_CONST;
 import CONST.WINDOW_CONST;
 import Game.*;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -54,14 +55,15 @@ public class Player {
         return pos;
     }
 
-    public void update(ArrayList<Bomb> bombs){
+    public void update(){
         timers();
-        //keys.input();
+        keys.input();
         calculateVel();
         collisionObstacle();
         mov();
         colision_with_solid_rec = false;
-        collisionBomb(bombs);
+        collisionBomb();
+        collisonExplode();
         adjustPositionBorde();
     }
 
@@ -360,19 +362,31 @@ public class Player {
         pos.y = spawn.y;
     }
 
-    public void collisionBomb(ArrayList<Bomb> bombs){
+    private void collisionBomb() {
         MathB m = new MathB();
         CollisionShapes cs = new CollisionShapes();
-        for (Bomb b : bombs){
-            Rectangle rec = b.getRec();
+        Scene scene = Scene.getInstance();
+        ArrayList<Rectangle> bombHitboxesCopy = new ArrayList<>(scene.getBombBoxes());
 
-            if (m.distancePointPoint(rec.getCenter(),pos.getCenter()) < pos.width/2 + rec.width/2 - PLAYER_CONST.SPEED)
+        for (Rectangle rec : bombHitboxesCopy) {
+            if (m.distancePointPoint(rec.getCenter(), pos.getCenter()) < pos.width / 2 + rec.width / 2 - PLAYER_CONST.SPEED)
                 continue;
 
-            if (cs.checkCollisionRecs(rec,pos)){
+            if (cs.checkCollisionRecs(rec, pos)) {
                 colision_with_solid_rec = true;
                 rec.repelRectangle(pos);
             }
+        }
+    }
+
+    private void collisonExplode()
+    {
+        CollisionShapes cs = new CollisionShapes();
+        Scene scene = Scene.getInstance();
+        ArrayList<Rectangle> exp = new ArrayList<>(scene.getExplodeHitBox());
+        for (Rectangle explode : exp) {
+            if (cs.checkCollisionRecs(this.pos,explode))
+                damage();
         }
     }
 
