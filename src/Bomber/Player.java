@@ -4,6 +4,7 @@ import CONST.BOMB_CONST;
 import CONST.PLAYER_CONST;
 import CONST.WINDOW_CONST;
 import Game.*;
+import Texture.TextureManager;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -21,6 +22,30 @@ public class Player {
     private final Vector2 spawn;
     private boolean colision_with_solid_rec;
     private int deaths;
+
+    private int textureID;
+    private float keyPressTimer;
+    private boolean keyPressed;
+    private int textureIDstop;
+    private int textureIDd1;
+    private int textureIDd2;
+    private int textureIDd3;
+
+    private int textureIDu1;
+    private int textureIDu2;
+    private int textureIDu3;
+
+    private int textureIDr1;
+    private int textureIDr2;
+    private int textureIDr3;
+
+    private int textureIDl1;
+    private int textureIDl2;
+    private int textureIDl3;
+
+
+    private int currentWalkTexture;  // Controlador para la textura actual de caminar
+    private float walkTimer;  // Temporizador para cambiar las texturas
 
 
     public Player(Vector2 spawn,Input input) {
@@ -42,6 +67,39 @@ public class Player {
 
         this.spawn = spawn;
         this.colision_with_solid_rec = false;
+
+        this.textureIDstop = TextureManager.loadTexture("Res/d1.png");
+
+        this.textureIDd1 = TextureManager.loadTexture("Res/d1.png");
+        this.textureIDd2 = TextureManager.loadTexture("Res/d2.png");
+        this.textureIDd3 = TextureManager.loadTexture("Res/d3.png");
+
+
+        this.textureIDu1 = TextureManager.loadTexture("Res/u1.png");
+        this.textureIDu2 = TextureManager.loadTexture("Res/u2.png");
+        this.textureIDu3 = TextureManager.loadTexture("Res/u3.png");
+
+        this.textureIDr1 = TextureManager.loadTexture("Res/r1.png");
+        this.textureIDr2 = TextureManager.loadTexture("Res/r2.png");
+        this.textureIDr3 = TextureManager.loadTexture("Res/r3.png");
+
+        this.textureIDr1 = TextureManager.loadTexture("Res/r1.png");
+        this.textureIDr2 = TextureManager.loadTexture("Res/r2.png");
+        this.textureIDr3 = TextureManager.loadTexture("Res/r3.png");
+
+        this.textureIDl1 = TextureManager.loadTexture("Res/l1.png");
+        this.textureIDl2 = TextureManager.loadTexture("Res/l2.png");
+        this.textureIDl3 = TextureManager.loadTexture("Res/l3.png");
+
+
+
+        this.textureID = textureIDstop;  // Inicialmente con la textura de descanso
+
+        this.keyPressTimer = 0;
+        this.keyPressed = false;
+        this.walkTimer = 0;
+        this.currentWalkTexture = 1;
+
     }
 
     public Rectangle getRec(){
@@ -58,6 +116,103 @@ public class Player {
         collisionBomb();
         collisonExplode();
         adjustPositionBorde();
+
+        // Verificar si se presiona alguna tecla de movimiento
+        boolean isMoving = keys.up || keys.down || keys.left || keys.right;
+
+        // Si se presiona una tecla, reiniciar el contador y cambiar la textura
+        if (isMoving) {
+            if (!keyPressed) {
+                keyPressTimer = 0;  // Reiniciar el contador cuando se presiona una tecla
+                keyPressed = true;
+            }
+        } else {
+            keyPressed = false;  // Si no se presiona ninguna tecla, detener el contador
+            walkTimer = 0;  // Reiniciar el temporizador de caminar cuando no se mueve
+            currentWalkTexture = 1;  // Volver a la primera textura de caminar
+            textureID = textureIDstop;  // Cambiar a la textura de descanso
+        }
+
+        // Si se está moviendo, aumentar el contador
+        if (keyPressed) {
+            keyPressTimer += 2;  // Aumentar el tiempo transcurrido
+        }
+
+        // Cambiar la textura de caminar según el tiempo transcurrido
+        if (keyPressTimer > 10) {
+            walkTimer += 1;
+            if (walkTimer >= 5) {
+                walkTimer = 0;
+                currentWalkTexture++;
+
+                if (currentWalkTexture > 3) {
+                    currentWalkTexture = 1;
+                }
+            }
+        }
+
+        // Asignar la textura según la dirección y la secuencia de caminata
+        if (keys.up) {
+            switch (currentWalkTexture) {
+                case 1:
+                    textureID = textureIDu1;  // Textura de caminar hacia arriba (1)
+                    break;
+                case 2:
+                    textureID = textureIDu2;  // Textura de caminar hacia arriba (2)
+                    break;
+                case 3:
+                    textureID = textureIDu3;  // Textura de caminar hacia arriba (3)
+                    break;
+                default:
+                    textureID = textureIDstop;  // Textura de descanso si no está caminando
+                    break;
+            }
+        } else if (keys.down) {
+            switch (currentWalkTexture) {
+                case 1:
+                    textureID = textureIDd1;  // Textura de caminar hacia abajo (1)
+                    break;
+                case 2:
+                    textureID = textureIDd2;  // Textura de caminar hacia abajo (2)
+                    break;
+                case 3:
+                    textureID = textureIDd3;  // Textura de caminar hacia abajo (3)
+                    break;
+                default:
+                    textureID = textureIDstop;  // Textura de descanso si no está caminando
+                    break;
+            }
+        } else if (keys.left) {
+            switch (currentWalkTexture) {
+                case 1:
+                    textureID = textureIDl1;  // Textura de caminar hacia izquierda (1)
+                    break;
+                case 2:
+                    textureID = textureIDl2;  // Textura de caminar hacia izquierda (2)
+                    break;
+                case 3:
+                    textureID = textureIDl3;  // Textura de caminar hacia izquierda (3)
+                    break;
+                default:
+                    textureID = textureIDstop;  // Textura de descanso si no está caminando
+                    break;
+            }
+        } else if (keys.right) {
+            switch (currentWalkTexture) {
+                case 1:
+                    textureID = textureIDr1;  // Textura de caminar hacia derecha (1)
+                    break;
+                case 2:
+                    textureID = textureIDr2;  // Textura de caminar hacia derecha (2)
+                    break;
+                case 3:
+                    textureID = textureIDr3;  // Textura de caminar hacia derecha (3)
+                    break;
+                default:
+                    textureID = textureIDstop;  // Textura de descanso si no está caminando
+                    break;
+            }
+        }
     }
 
     private void calculateVel() {
@@ -312,7 +467,7 @@ public class Player {
     }
 
     public void draw(){
-        pos.draw(1,0,0);
+        TextureManager.drawTexture(textureID, pos.x, pos.y, pos.width, pos.height);  // Usar la textura correspondiente
     }
 
     public Vector2 getPos(){

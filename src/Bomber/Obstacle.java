@@ -3,6 +3,7 @@ package Bomber;
 import Game.Rectangle;
 import Game.Triangle;
 import Game.Vector2;
+import Texture.TextureManager;
 
 public class Obstacle {
 
@@ -11,6 +12,7 @@ public class Obstacle {
     private Triangle bottom;
     private Triangle left;
     private Triangle right;
+    private int boxTextureID;
 
     public Obstacle(float x,float y,float width,float height) {
         this.pos = new Rectangle(x,y,width,height);
@@ -24,10 +26,15 @@ public class Obstacle {
         this.bottom = new Triangle(center,bottomLeft, bottomRight);
         this.left = new Triangle(center, topLeft, bottomLeft);
         this.right = new Triangle(center, bottomRight, topRight);
+
+        this.boxTextureID = TextureManager.loadTexture("Res/Obstacle.png"); // Use TextureManager to load texture
+
     }
 
     public void draw(){
-        this.pos.draw(0,0,0);
+
+        TextureManager.drawTexture(boxTextureID, pos.x, pos.y, pos.width, pos.height);
+
     }
 
     public Rectangle getRec() {

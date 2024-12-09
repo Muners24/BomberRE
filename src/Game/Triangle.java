@@ -33,7 +33,7 @@ public class Triangle {
 
         glBegin(GL_TRIANGLES);
 
-        glColor3f(r, g, b);  // Color RGB (rojo, verde, azul)
+        glColor4f(1, 1, 1,0);  // Color RGB (rojo, verde, azul)
 
         glVertex2f(x1, y1);  // Vértice 1
         glVertex2f(x2, y2);  // Vértice 2

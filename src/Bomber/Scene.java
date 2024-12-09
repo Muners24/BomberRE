@@ -3,6 +3,7 @@ package Bomber;
 import CONST.WINDOW_CONST;
 import Game.Rectangle;
 import Game.Vector2;
+import Texture.TextureManager;
 import Window.Window;
 import org.w3c.dom.css.Rect;
 
@@ -19,6 +20,12 @@ public class Scene {
     ArrayList<Rectangle> bombHitBoxes;
     private static int timer;
 
+    private int bombtextureID;
+    private int explosionTextureID;
+    private int centerTextureID;
+    private int bomb1textureID;
+    private int bomb2textureID;
+
     private Scene() {
         bombHitBoxes = new ArrayList<>();
         bombBoxes = new ArrayList<>();
@@ -26,6 +33,12 @@ public class Scene {
         borde = new ArrayList<>();
         obstacles = new ArrayList<>();
         initObstacles();
+
+        this.bombtextureID = TextureManager.loadTexture("Res/Bomb.png"); // Textura base de la bomba
+        this.explosionTextureID = TextureManager.loadTexture("Res/Explotion.png"); // Cargar textura de la explosión
+        this.centerTextureID = TextureManager.loadTexture("Res/Explotion_Center.png"); // Cargar textura de la explosión
+        this.bomb1textureID = TextureManager.loadTexture("Res/Bomb2.png"); // Textura alternativa de la bomba
+        this.bomb2textureID = TextureManager.loadTexture("Res/Bomb4.png"); // Otra textura alternativa de la bomba
     }
 
     public static Scene getInstance(){
@@ -66,7 +79,7 @@ public class Scene {
         }
 
         for(Rectangle cas : casillas){
-            cas.draw(0.3f,0.3f,0.3f);
+            cas.draw(0.5f, 1, 0.2f);
         }
 
 
