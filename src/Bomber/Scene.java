@@ -42,10 +42,10 @@ public class Scene {
 
     private void initObstacles(){
         final int CASILLA = WINDOW_CONST.BOX;
-        final int LEFT = WINDOW_CONST.BORDE_LEFT;
-        final int RIGHT = WINDOW_CONST.BORDE_RIGHT;
-        final int TOP = WINDOW_CONST.BORDE_TOP;
-        final int BOTTOM = WINDOW_CONST.BORDE_BOTTOM;
+        final int LEFT = WINDOW_CONST.LEFT;
+        final int RIGHT = WINDOW_CONST.RIGHT;
+        final int TOP = WINDOW_CONST.TOP;
+        final int BOTTOM = WINDOW_CONST.BOTTOM;
 
         int x, y;
         for (x = LEFT; x <= RIGHT; x += CASILLA)

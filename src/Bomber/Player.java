@@ -6,33 +6,44 @@ import CONST.WINDOW_CONST;
 import Game.*;
 
 import java.util.ArrayList;
+import java.util.Vector;
 
 public class Player {
     private long window;
 
-    private int id;
-    private Rectangle pos;
-    private Vector2 vel;
-    private float speed;
+    private final int id;
+    private final Rectangle pos;
+    private final Vector2 vel;
+    private final float speed;
+    private int vida;
     private Input keys;
     private int atk_timer;
+    private int dmg_timer;
+    private final Vector2 spawn;
+    private boolean colision_with_solid_rec;
 
 
-    public Player(int id, Vector2 pos,long window) {
+    public Player(int id, Vector2 spawn, long window,Input input) {
         this.window = window;
+
+        this.keys = input;
 
         this.id = id;
         this.pos = new Rectangle(
-                pos.x,
-                pos.y,
+                spawn.x,
+                spawn.y,
                 PLAYER_CONST.WIDTH,
                 PLAYER_CONST.HEIGHT);
 
         this.speed = PLAYER_CONST.SPEED;
         this.vel = new Vector2(0,0);
 
-        this.keys = new Input(this.window);
-        this.atk_timer = 0;
+        this.vida = PLAYER_CONST.MAX_VIDA;
+        this.atk_timer = BOMB_CONST.COLD_DOWN;
+        this.dmg_timer = PLAYER_CONST.INVULERABILITY;
+
+        this.spawn = spawn;
+        this.colision_with_solid_rec = false;
     }
 
     public int getId(){
@@ -43,14 +54,14 @@ public class Player {
         return pos;
     }
 
-    public void update(){
-        if (atk_timer <= BOMB_CONST.COLD_DOWN){
-            atk_timer++;
-        }
-        keys.input();
+    public void update(ArrayList<Bomb> bombs){
+        timers();
+        //keys.input();
         calculateVel();
         collisionObstacle();
         mov();
+        colision_with_solid_rec = false;
+        collisionBomb(bombs);
         adjustPositionBorde();
     }
 
@@ -103,10 +114,10 @@ public class Player {
 
     private void adjustPositionBorde(){
         final float BOX = WINDOW_CONST.BOX;
-        final float LEFT = WINDOW_CONST.BORDE_LEFT + BOX;
-        final float RIGHT = WINDOW_CONST.BORDE_RIGHT;
-        final float TOP = WINDOW_CONST.BORDE_TOP + BOX;
-        final float BOTTOM = WINDOW_CONST.BORDE_BOTTOM;
+        final float LEFT = WINDOW_CONST.LEFT + BOX;
+        final float RIGHT = WINDOW_CONST.RIGHT;
+        final float TOP = WINDOW_CONST.TOP + BOX;
+        final float BOTTOM = WINDOW_CONST.BOTTOM;
 
         if(this.pos.x < LEFT) {
             this.pos.x = LEFT;
@@ -129,7 +140,16 @@ public class Player {
     private void collisionObstacle(){
         Scene map = Scene.getInstance();
         ArrayList<Obstacle> obstacles = map.getObstacles();
-        CollisionShapes C = new CollisionShapes();
+        CollisionShapes cs = new CollisionShapes();
+
+        if (colision_with_solid_rec){
+            for (Obstacle obstacle : obstacles) {
+                Rectangle rec = obstacle.getRec();
+                if(cs.checkCollisionRecs(pos,rec))
+                    rec.repelRectangle(pos);
+            }
+            return;
+        }
 
         for (Obstacle obs : obstacles) {
             Rectangle rec = obs.getRec();
@@ -141,8 +161,8 @@ public class Player {
             if (keys.down) {
                 Triangle tri = obs.getTriangleTop();
                 tri.draw(1,0,0);
-                boolean left = C.checkCollisionPointTriangle(new Vector2(LEFT, BOTTOM), tri);
-                boolean right = C.checkCollisionPointTriangle(new Vector2(RIGHT, BOTTOM), tri);
+                boolean left = cs.checkCollisionPointTriangle(new Vector2(LEFT, BOTTOM), tri);
+                boolean right = cs.checkCollisionPointTriangle(new Vector2(RIGHT, BOTTOM), tri);
 
                 if (left && right) {
                     tri.draw(0,1,0);
@@ -181,8 +201,8 @@ public class Player {
             if (keys.up) {
                 Triangle tri = obs.getTriangleBottom();
                 tri.draw(1,0,0);
-                boolean left = C.checkCollisionPointTriangle(new Vector2(LEFT, TOP), tri);
-                boolean right = C.checkCollisionPointTriangle(new Vector2(RIGHT, TOP), tri);
+                boolean left = cs.checkCollisionPointTriangle(new Vector2(LEFT, TOP), tri);
+                boolean right = cs.checkCollisionPointTriangle(new Vector2(RIGHT, TOP), tri);
 
                 if (left && right) {
                     tri.draw(0,1,0);
@@ -220,8 +240,8 @@ public class Player {
             if (keys.left) {
                 Triangle tri = obs.getTriangleRight();
                 tri.draw(1,0,0);
-                boolean top = C.checkCollisionPointTriangle(new Vector2(LEFT, TOP), tri);
-                boolean bottom = C.checkCollisionPointTriangle(new Vector2(LEFT, BOTTOM), tri);
+                boolean top = cs.checkCollisionPointTriangle(new Vector2(LEFT, TOP), tri);
+                boolean bottom = cs.checkCollisionPointTriangle(new Vector2(LEFT, BOTTOM), tri);
 
                 if (top && bottom) {
                     vel.x = 0;
@@ -258,8 +278,8 @@ public class Player {
             if (keys.right) {
                 Triangle tri = obs.getTriangleLeft();
                 tri.draw(1,0,0);
-                boolean top = C.checkCollisionPointTriangle(new Vector2(RIGHT, TOP), tri);
-                boolean bottom = C.checkCollisionPointTriangle(new Vector2(RIGHT, BOTTOM), tri);
+                boolean top = cs.checkCollisionPointTriangle(new Vector2(RIGHT, TOP), tri);
+                boolean bottom = cs.checkCollisionPointTriangle(new Vector2(RIGHT, BOTTOM), tri);
 
                 if (top && bottom) {
                     tri.draw(0,1,0);
@@ -314,5 +334,47 @@ public class Player {
         }
         return  false;
     }
+
+    private void timers(){
+        if (atk_timer <= BOMB_CONST.COLD_DOWN)
+            atk_timer++;
+
+        if (dmg_timer <= PLAYER_CONST.INVULERABILITY)
+            dmg_timer++;
+    }
+
+    public void damage(){
+        if (dmg_timer > PLAYER_CONST.INVULERABILITY){
+            dmg_timer = 0;
+            vida -= BOMB_CONST.DAMAGE;
+
+            if(vida < 0){
+                death();
+            }
+        }
+    }
+
+    public void death(){
+        vida = PLAYER_CONST.MAX_VIDA;
+        pos.x = spawn.x;
+        pos.y = spawn.y;
+    }
+
+    public void collisionBomb(ArrayList<Bomb> bombs){
+        MathB m = new MathB();
+        CollisionShapes cs = new CollisionShapes();
+        for (Bomb b : bombs){
+            Rectangle rec = b.getRec();
+
+            if (m.distancePointPoint(rec.getCenter(),pos.getCenter()) < pos.width/2 + rec.width/2 - PLAYER_CONST.SPEED)
+                continue;
+
+            if (cs.checkCollisionRecs(rec,pos)){
+                colision_with_solid_rec = true;
+                rec.repelRectangle(pos);
+            }
+        }
+    }
+
 
 }

@@ -5,6 +5,7 @@ import CONST.WINDOW_CONST;
 import Game.CollisionShapes;
 import Game.Rectangle;
 import Game.Vector2;
+import org.w3c.dom.css.Rect;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public class Bomb {
 
         for (Rectangle r : casillas) {
             if (cs.checkCollisionPointRec(pos, r)) {
-                this.pos = r;
+                this.pos = r.copy();
                 break;
             }
         }
@@ -42,21 +43,32 @@ public class Bomb {
         }
     }
 
-    public void update() {
+    public void update(ArrayList<Player> players) {
         timer++;
-        explode();
+        explode(players);
     }
 
 
     public boolean endExplode(){
-        return (timer > BOMB_CONST.TTL + BOMB_CONST.EXPLDOE_TLL);
+        return (timer > BOMB_CONST.TTL + BOMB_CONST.EXPLODE_TLL);
     }
 
-    //recibira a los jugadores, si la explosion toco a alguno, su vida se restara
-    private void explode() {
+    private void explode(ArrayList<Player> players) {
         if(timer >= BOMB_CONST.TTL){
             if (hitbox.isEmpty()) {
+                pos.x = WINDOW_CONST.OUT_SCREEN.x;
+                pos.y = WINDOW_CONST.OUT_SCREEN.y;
                 hitbox = getExpodeHitBox();
+            }
+
+            CollisionShapes cs = new CollisionShapes();
+
+            for(Player p : players){
+                Rectangle rec = p.getRec();
+                for (Rectangle h : hitbox) {
+                    if (cs.checkCollisionRecs(rec,h))
+                       p.damage();
+                }
             }
         }
     }
@@ -94,16 +106,16 @@ public class Bomb {
         CollisionShapes cs = new CollisionShapes();
 
         int CASILLA = WINDOW_CONST.BOX;
-        int LEFT = WINDOW_CONST.BORDE_LEFT+CASILLA;
-        int RIGHT = WINDOW_CONST.BORDE_RIGHT;
-        int TOP = WINDOW_CONST.BORDE_TOP +CASILLA;
-        int BOTTOM = WINDOW_CONST.BORDE_BOTTOM;
+        int LEFT = WINDOW_CONST.LEFT+ CASILLA;
+        int RIGHT = WINDOW_CONST.RIGHT;
+        int TOP = WINDOW_CONST.TOP + CASILLA;
+        int BOTTOM = WINDOW_CONST.BOTTOM;
 
         boolean tope = false;
         Vector2 limit = new Vector2(center.x,center.y);
 
         int i = 0;
-        while (!tope && i < BOMB_CONST.EXPLDOE_LONG) {
+        while (!tope && i < BOMB_CONST.EXPLODE_LONG) {
 
             limit.x+=stepX;
             limit.y+=stepY;
@@ -144,4 +156,9 @@ public class Bomb {
 
         return limit;
     }
+
+    public Rectangle getRec(){
+        return pos;
+    }
+
 }

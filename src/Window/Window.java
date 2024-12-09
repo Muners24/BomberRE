@@ -2,6 +2,7 @@ package Window;
 
 import Bomber.Bomb;
 import Bomber.Scene;
+import CONST.PLAYER_CONST;
 import CONST.WINDOW_CONST;
 import Game.*;
 import Bomber.Player;
@@ -11,6 +12,7 @@ import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
 
+import java.io.IOException;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -23,12 +25,11 @@ import static org.lwjgl.system.MemoryUtil.*;
 
 public class Window {
 
-    private long window;
+    protected long window;
 
-    public void run() {
+    public void runGame() {
         System.out.println("Hello LWJGL " + Version.getVersion() + "!");
 
-        init();
         loop();
 
         glfwFreeCallbacks(window);
@@ -38,11 +39,11 @@ public class Window {
         glfwSetErrorCallback(null).free();
     }
 
-    private void loop() {
+    protected void loop() {
 
         ArrayList<Player> players = new ArrayList<>();
         ArrayList<Bomb> bombs = new ArrayList<Bomb>();
-        players.add(new Player(0, new Vector2(10,10),this.window));
+        players.add(new Player(0,PLAYER_CONST.SPAWN_TL,this.window, new Input(0,window)));
         Scene map = Scene.getInstance();
 
         while (!glfwWindowShouldClose(window)) {
@@ -54,7 +55,7 @@ public class Window {
             Iterator<Bomb> iterator = bombs.iterator();
             while (iterator.hasNext()) {
                 Bomb b = iterator.next();
-                b.update();
+                b.update(players);
                 b.draw();
                 if (b.endExplode()) {
                     iterator.remove();
@@ -62,7 +63,7 @@ public class Window {
             }
 
             for (Player p : players) {
-                p.update();
+                p.update(bombs);
                 p.draw();
 
                 if(p.setBomb()){
@@ -75,7 +76,7 @@ public class Window {
 
 
 
-    private void init() {
+    protected void initLWJGL() {
         GLFWErrorCallback.createPrint(System.err).set();
 
         if (!glfwInit())
@@ -90,13 +91,11 @@ public class Window {
         if (window == NULL)
             throw new RuntimeException("Failed to create the GLFW window");
 
-        // Configurar un callback para teclas
         glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
             if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
                 glfwSetWindowShouldClose(window, true);
         });
 
-        // Obtener el tamaño de la ventana y centrarla en la pantalla
         try (MemoryStack stack = stackPush()) {
             IntBuffer pWidth = stack.mallocInt(1);
             IntBuffer pHeight = stack.mallocInt(1);
@@ -131,7 +130,9 @@ public class Window {
         glLoadIdentity();
     }
 
-    public static void main(String[] args) {
-        new Window().run();
+    public static void main(String[] args) throws IOException {
+        Window w = new Window();
+        w.initLWJGL();
+        w.runGame();
     }
 }

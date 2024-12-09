@@ -16,4 +16,8 @@ public class Vector2 {
     public float getY(){
         return y;
     }
+
+    public Vector2 copy(){
+        return new Vector2(x, y);
+    }
 }

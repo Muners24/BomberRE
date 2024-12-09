@@ -24,21 +24,18 @@ public class CollisionShapes {
         Vector2 p2 = tri.getVertex2();
         Vector2 p3 = tri.getVertex3();
 
-        float areaOrig = areaTriangle(p1, p2, p3);
+        MathB m = new MathB();
 
-        float area1 = areaTriangle(point, p2, p3);
-        float area2 = areaTriangle(p1, point, p3);
-        float area3 = areaTriangle(p1, p2, point);
+        float areaOrig = m.areaTriangle(p1, p2, p3);
+
+        float area1 = m.areaTriangle(point, p2, p3);
+        float area2 = m.areaTriangle(p1, point, p3);
+        float area3 = m.areaTriangle(p1, p2, point);
 
         float tolerance = 2.0f;
 
         return Math.abs(areaOrig - (area1 + area2 + area3)) <= tolerance;
     }
-
-    private float areaTriangle(Vector2 point1, Vector2 point2, Vector2 point3) {
-        return Math.abs(point1.x * (point2.y - point3.y) + point2.x * (point3.y - point1.y) + point3.x * (point1.y - point2.y)) / 2.0f;
-    }
-
 
     public boolean checkCollisionPointLine(Vector2 point,Line line, float threshold){
         float px = point.x;

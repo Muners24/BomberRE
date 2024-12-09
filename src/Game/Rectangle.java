@@ -32,4 +32,36 @@ public class Rectangle {
         glEnd();
     }
 
+    public Rectangle copy(){
+        return new Rectangle(x, y, width, height);
+    }
+
+    public Vector2 getCenter(){
+        return new Vector2(x+width/2, y+height/2);
+    }
+
+    public void repelRectangle(Rectangle rec){
+        MathB m = new MathB();
+        Vector2 center = rec.getCenter();
+        Vector2 distance = m.vectorDistancePointPoint(getCenter(),center);
+
+        float LEFT = x;
+        float RIGHT = x + width;
+        float TOP = y;
+        float BOTTOM = y + height;
+
+        if (distance.y <= distance.x){
+            if (center.x  < LEFT)
+                rec.x = x - rec.width;
+
+            if (center.x > RIGHT)
+                rec.x = x + width;
+            return;
+        }
+        if (center.y < TOP)
+            rec.y = y - rec.height;
+
+        if (center.y > BOTTOM)
+            rec.y = y + height;
+    }
 }
