@@ -26,6 +26,9 @@ public class Scene {
     private int bomb1textureID;
     private int bomb2textureID;
 
+    private int bombTickCounter = 0;
+
+
     private Scene() {
         bombHitBoxes = new ArrayList<>();
         bombBoxes = new ArrayList<>();
@@ -34,11 +37,12 @@ public class Scene {
         obstacles = new ArrayList<>();
         initObstacles();
 
-        this.bombtextureID = TextureManager.loadTexture("Res/Bomb.png"); // Textura base de la bomba
-        this.explosionTextureID = TextureManager.loadTexture("Res/Explotion.png"); // Cargar textura de la explosión
-        this.centerTextureID = TextureManager.loadTexture("Res/Explotion_Center.png"); // Cargar textura de la explosión
-        this.bomb1textureID = TextureManager.loadTexture("Res/Bomb2.png"); // Textura alternativa de la bomba
-        this.bomb2textureID = TextureManager.loadTexture("Res/Bomb4.png"); // Otra textura alternativa de la bomba
+        this.bombtextureID = TextureManager.loadTexture("Res/Bomb.png");
+        this.explosionTextureID = TextureManager.loadTexture("Res/Explotion.png");
+        this.centerTextureID = TextureManager.loadTexture("Res/Explotion_Center.png");
+        this.bomb1textureID = TextureManager.loadTexture("Res/Bomb2.png");
+        this.bomb2textureID = TextureManager.loadTexture("Res/Bomb4.png");
+
     }
 
     public static Scene getInstance(){
@@ -64,35 +68,39 @@ public class Scene {
         timer = 0;
     }
 
-    public void draw(){
-        if(timer > 100)
-            timer = 0;
-
-        timer++;
-
-        for(Obstacle obs : obstacles){
+    public void draw() {
+        for (Obstacle obs : obstacles) {
             obs.draw();
         }
 
-        for(Obstacle obs : borde){
+        for (Obstacle obs : borde) {
             obs.draw();
         }
 
-        for(Rectangle cas : casillas){
+        for (Rectangle cas : casillas) {
             cas.draw(0.5f, 1, 0.2f);
         }
 
+        bombTickCounter++;
+
+        if (bombTickCounter >= 50) {
+            bombTickCounter = 0;
+        }
 
         Iterator<Rectangle> bombIterator = bombBoxes.iterator();
         while (bombIterator.hasNext()) {
             Rectangle bomb = bombIterator.next();
-            bomb.draw(0, 0, 1);
+            if (bombTickCounter < 25) {
+                TextureManager.drawTexture(bomb1textureID, bomb.x, bomb.y, bomb.width, bomb.height);
+            } else {
+                TextureManager.drawTexture(bomb2textureID, bomb.x, bomb.y, bomb.width, bomb.height);
+            }
         }
 
         Iterator<Rectangle> expodeIterator = bombHitBoxes.iterator();
         while (expodeIterator.hasNext()) {
             Rectangle expode = expodeIterator.next();
-            expode.draw(1, 0.2f, 0.2f);
+            TextureManager.drawTexture(explosionTextureID, expode.x, expode.y, expode.width, expode.height);
         }
     }
 
