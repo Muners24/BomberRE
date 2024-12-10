@@ -69,6 +69,9 @@ public class Scene {
     }
 
     public void draw() {
+
+
+
         for (Obstacle obs : obstacles) {
             obs.draw();
         }

@@ -4,6 +4,7 @@ import CONST.BOMB_CONST;
 import CONST.PLAYER_CONST;
 import CONST.WINDOW_CONST;
 import Game.*;
+import Texture.Texture;
 import Texture.TextureManager;
 
 import java.lang.reflect.Array;
@@ -42,6 +43,13 @@ public class Player {
     private int textureIDl1;
     private int textureIDl2;
     private int textureIDl3;
+
+    private int num0;
+    private int num1;
+    private int num2;
+    private int num3;
+    private int num4;
+    private int num5;
 
 
     private int currentWalkTexture;  // Controlador para la textura actual de caminar
@@ -91,9 +99,14 @@ public class Player {
         this.textureIDl2 = TextureManager.loadTexture("Res/l2.png");
         this.textureIDl3 = TextureManager.loadTexture("Res/l3.png");
 
+        this.num0 = TextureManager.loadTexture("Res/0.png");
+        this.num1 = TextureManager.loadTexture("Res/1.png");
+        this.num2 = TextureManager.loadTexture("Res/2.png");
+        this.num3 = TextureManager.loadTexture("Res/3.png");
+        this.num4 = TextureManager.loadTexture("Res/4.png");
+        this.num5 = TextureManager.loadTexture("Res/5.png");
 
-
-        this.textureID = textureIDstop;  // Inicialmente con la textura de descanso
+        this.textureID = textureIDstop;
 
         this.keyPressTimer = 0;
         this.keyPressed = false;
@@ -467,6 +480,46 @@ public class Player {
     }
 
     public void draw(){
+        float x;
+        float y;
+        if (keys.tipoInput)
+        {
+            x = 20;
+            y = 20;
+        }
+        else
+        {
+            x = WINDOW_CONST.WIDTH - 20 - 80;
+            y = 20;
+        }
+
+        int id = 0;
+        switch (PLAYER_CONST.DEATH_NUM-deaths)
+        {
+            case 0:
+                id = num0;
+                break;
+            case 1:
+                id = num1;
+
+                break;
+            case 2:
+                id = num2;
+                break;
+            case 3:
+                id = num3;
+                break;
+            case 4:
+                id = num4;
+                break;
+            case 5:
+                id = num5;
+                break;
+        }
+
+        TextureManager.drawTexture(id,x,y,80,80);
+
+
         TextureManager.drawTexture(textureID, pos.x, pos.y, pos.width, pos.height);  // Usar la textura correspondiente
     }
 

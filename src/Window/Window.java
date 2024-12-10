@@ -1,12 +1,14 @@
 package Window;
 
 import Bomber.Bomb;
+import Bomber.BombMenu;
 import Bomber.Scene;
 import CONST.PLAYER_CONST;
 import CONST.WINDOW_CONST;
 import Game.*;
 import Bomber.Player;
 import Game.Vector2;
+import Texture.TextureManager;
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
@@ -46,7 +48,16 @@ public class Window {
 
     protected void loop() {
 
+        BombMenu menu = new BombMenu(window);
+
         while (!glfwWindowShouldClose(window)) {
+
+
+            String result = menu.run();
+
+            if (result.equals("esc")) {
+                break;
+            }
 
             Scene.destroy();
             ArrayList<Player> players = new ArrayList<>();
@@ -54,7 +65,7 @@ public class Window {
             players.add(new Player(PLAYER_CONST.SPAWN_TR, new Input(0,window,false)));
             Scene scene = Scene.getInstance();
 
-            while (!players.get(0).lose() && !players.get(1).lose())
+            while (!players.get(0).lose() && !players.get(1).lose() && !glfwWindowShouldClose(window))
             {
 
                 System.out.println(players.get(0).getDeaths() + ", " + players.get(1).getDeaths());
@@ -76,9 +87,10 @@ public class Window {
                 glfwSwapBuffers(window);
             }
 
+            menu.end();
 
             try {
-                Thread.sleep(5000);
+                Thread.sleep(7000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
